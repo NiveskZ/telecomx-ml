@@ -25,3 +25,16 @@ O que vai ser realizado:
 - Interpretar os resultados, incluindo a importância das variáveis.
 
 - Criar uma conclusão estratégica apontando os principais fatores que influenciam a evasão.
+
+## Preparação de Dados
+Como nossa fonte de dados já tinha sido tratado, em sua maioria na parte de ETL, aqui só precisamos fazer algumas modificações básicas para evitar data leakage e multicolinearidade para modelos lineares:
+
+- Foi removido a coluna de identificação `customerID`
+
+- Colunas que possuiam valores `No internet service` foi reatribuido o valor `No`, uma vez que para o modelo preditivio significa a mesma coisa e geraria multicolinearidade para modelos lineares.
+
+- Para transformar colunas categóricas em numéricas foi utilizado a codificação One-Hot através do `OneHotEncoder` da biblioteca `scikit-learn` 
+
+- Normalização de valores numéricos para garantir eficiência de modelos lineares e baseados em distância.
+
+Feita essas mudanças, conseguimos comparar entre diferentes tipos de modelos qual nos trás a melhor resposta para nosso problema.
