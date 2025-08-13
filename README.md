@@ -38,3 +38,21 @@ Como nossa fonte de dados já tinha sido tratado, em sua maioria na parte de ETL
 - Normalização de valores numéricos para garantir eficiência de modelos lineares e baseados em distância.
 
 Feita essas mudanças, conseguimos comparar entre diferentes tipos de modelos qual nos trás a melhor resposta para nosso problema.
+
+## Análise de Correlação e Seleção de Variáveis
+
+Nessa etapa foi criada matrizes de correlação para reduzir multicolinearidades e entender quais variáveis respondem melhor o que faz o cliente dar ou não churn. Inicialmente foi criado uma matriz de correlação geral com todas as variáveis, obtendo a imagem abaixo contendo apenas a linha em relação ao `Churn`.
+
+![Churn](imgs\churn_corr.png)
+
+Com objetivo de selecionar apenas variáveis minimamente relevantes, foi decidido pegar um limiar de valor maior que 0.15 (valor absoluto). Podemos ter uma visualização ampliada dessas variáveis através do gráfico a seguir.
+
+![Heatmap das variáveis com correlação >= 0.15 com Churn](imgs\corr_015.png)
+
+Note que várias variáveis apresentam alta colinearidade entre si, o que pode prejudicar modelos lineares. Para lidar com isso, utilizamos a biblioteca `statsmodels`.
+
+Primeiro, aplicamos o Fator de Inflação da Variância (VIF) para detectar multicolinearidade. Variáveis com VIF muito alto indicam que estão fortemente correlacionadas com outras variáveis explicativas, o que pode inflar os coeficientes e tornar o modelo instável. Removemos essas variáveis prioritariamente, mantendo apenas as mais representativas.
+
+Em seguida, ajustamos um modelo de Mínimos Quadrados Ordinários (OLS) para obter um sumário estatístico completo, incluindo coeficientes, erros padrão, intervalos de confiança e métricas de significância. Com base nesses resultados, selecionamos as variáveis mais relevantes utilizando o teste t e o p-valor.
+
+O critério adotado foi `p-valor < 0.05`, ou seja, apenas variáveis cujo efeito é estatisticamente significativo ao nível de 95% foram mantidas. Esse processo nos permite identificar quais variáveis realmente influenciam a variável resposta (`Churn`) e garantir maior confiabilidade e interpretabilidade para modelos lineares subsequentes.

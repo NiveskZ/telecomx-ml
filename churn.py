@@ -86,8 +86,8 @@ df_corr['Churn'] = y
 
 # %%
 # Visualização heatmap
-fig, ax = plt.subplots(figsize=(20,16))
-ax = sns.heatmap(np.round(df_corr.corr(), 2), vmax=1, vmin=-1, center=0,
+fig, ax = plt.subplots(figsize=(20,2))
+ax = sns.heatmap(np.round(df_corr.corr().loc[['Churn']], 2), vmax=1, vmin=-1, center=0,
             square=True, linewidths=.5, annot=True, cbar_kws={"shrink": .5})
 plt.show()
 # %%
