@@ -11,12 +11,15 @@ from sklearn.compose import make_column_transformer
 
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
+
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
 
 from sklearn.dummy import DummyClassifier
-from sklearn.linear_model import LinearRegression , LogisticRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+
 
 #%%
 url = 'https://raw.githubusercontent.com/NiveskZ/telecomx-etl/refs/heads/main/data/telecomx.csv'
@@ -167,9 +170,66 @@ dummy = DummyClassifier()
 dummy.fit(X_train,y_train)
 
 dummy.score(X_val,y_val)
-# %%
 
-linear_model = LinearRegression()
+# %%
+def calcular_metricas(y_test, y_pred, y_pred_proba):
+
+    acc = accuracy_score(y_test, y_pred)
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
+    matriz_conf = confusion_matrix(y_test, y_pred)
+    metricas = {
+        'Acurácia': acc,
+        'ROC AUC': roc_auc,
+        'Matriz de Confusão': matriz_conf
+    }
+
+    return metricas
+# %%
 logistic_model = LogisticRegression(random_state=42)
-tree_model = DecisionTreeClassifier(random_state=42)
+logistic_model.fit(X_train,y_train)
+y_reg = logistic_model.predict(X_val)
+y_reg_proba = logistic_model.predict_proba(X_val)[:,1]
+ 
+# Avaliação
+calcular_metricas(y_val,y_reg,y_reg_proba)
+# %%
+tree_model = DecisionTreeClassifier(max_depth=5, random_state=42)
+tree_model.fit(X_train,y_train)
+y_tree = tree_model.predict(X_val)
+y_tree_proba = tree_model.predict_proba(X_val)[:,1]
+
+# Avaliação
+calcular_metricas(y_val,y_tree,y_tree_proba)
+# %%
 rf_model = RandomForestClassifier(random_state=42)
+
+rf_model.fit(X_train,y_train)
+y_rf = rf_model.predict(X_val)
+y_rf_proba = rf_model.predict_proba(X_val)[:,1]
+ 
+# Avaliação
+calcular_metricas(y_val,y_rf,y_rf_proba)
+# %%
+params = {
+    "max_depth": [5, 10, 15],
+    "min_samples_leaf": [1, 2, 3],
+    "min_samples_split": [2, 4, 6],
+    "n_estimators": [100, 150, 200],
+    "criterion":['gini','entropy','log_loss']
+}
+
+grid = GridSearchCV(rf_model,
+                    params,
+                    cv=3,
+                    scoring='roc_auc',
+                    verbose=4)
+
+grid.fit(X_train,y_train)
+# %%
+y_pred_grid = grid.predict(X_val)
+y_pred_grid_proba = grid.predict_proba(X_val)[:,1]
+roc_auc_score(y_val,y_pred_grid_proba)
+confusion_matrix(y_val, y_pred_grid)
+# %%
+calcular_metricas(y_val,y_pred_grid, y_pred_grid_proba)
+# %%
