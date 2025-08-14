@@ -13,13 +13,15 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 
-from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, recall_score
 
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
+from yellowbrick.model_selection import FeatureImportances
+from yellowbrick.classifier import ROCAUC
 
 #%%
 url = 'https://raw.githubusercontent.com/NiveskZ/telecomx-etl/refs/heads/main/data/telecomx.csv'
@@ -162,6 +164,7 @@ print(ols.summary())
 # %%
 features = X_train_const.drop('const',axis=1).columns
 # %%
+X = X[features]
 X_train = X_train[features]
 X_val = X_val[features]
 X_test = X_test[features]
@@ -169,16 +172,19 @@ X_test = X_test[features]
 dummy = DummyClassifier()
 dummy.fit(X_train,y_train)
 
-dummy.score(X_val,y_val)
+dummy_predict = dummy.predict(X_val)
+accuracy_score(y_val, dummy_predict)
 
 # %%
 def calcular_metricas(y_test, y_pred, y_pred_proba):
 
     acc = accuracy_score(y_test, y_pred)
+    recall = recall_score(y_test,y_pred)
     roc_auc = roc_auc_score(y_test, y_pred_proba)
     matriz_conf = confusion_matrix(y_test, y_pred)
     metricas = {
         'Acurácia': acc,
+        'Recall': recall,
         'ROC AUC': roc_auc,
         'Matriz de Confusão': matriz_conf
     }
@@ -228,8 +234,31 @@ grid.fit(X_train,y_train)
 # %%
 y_pred_grid = grid.predict(X_val)
 y_pred_grid_proba = grid.predict_proba(X_val)[:,1]
-roc_auc_score(y_val,y_pred_grid_proba)
-confusion_matrix(y_val, y_pred_grid)
-# %%
+
 calcular_metricas(y_val,y_pred_grid, y_pred_grid_proba)
+# %%
+viz = FeatureImportances(rf_model, relative=False, topn=10)
+viz.fit(X_train, y_train)
+viz.show()
+# %%
+visualizer = ROCAUC(rf_model, classes=["not_churn", "churn"])
+
+visualizer.fit(X_train, y_train)        # Fit the training data to the visualizer
+visualizer.score(X_val, y_val)        # Evaluate the model on the test data
+visualizer.show()  
+# %%
+grid.fit(X,y)
+
+# %%
+y_pred_grid = grid.predict(X_test)
+y_pred_grid_proba = grid.predict_proba(X_test)[:,1]
+
+calcular_metricas(y_test,y_pred_grid, y_pred_grid_proba)
+
+# %%
+visualizer = ROCAUC(grid, classes=["not_churn", "churn"])
+
+visualizer.fit(X, y) 
+visualizer.score(X_test, y_test)    
+visualizer.show() 
 # %%
