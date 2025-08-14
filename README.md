@@ -56,3 +56,22 @@ Primeiro, aplicamos o Fator de Inflação da Variância (VIF) para detectar mult
 Em seguida, ajustamos um modelo de Mínimos Quadrados Ordinários (OLS) para obter um sumário estatístico completo, incluindo coeficientes, erros padrão, intervalos de confiança e métricas de significância. Com base nesses resultados, selecionamos as variáveis mais relevantes utilizando o teste t e o p-valor.
 
 O critério adotado foi `p-valor < 0.05`, ou seja, apenas variáveis cujo efeito é estatisticamente significativo ao nível de 95% foram mantidas. Esse processo nos permite identificar quais variáveis realmente influenciam a variável resposta (`Churn`) e garantir maior confiabilidade e interpretabilidade para modelos lineares subsequentes.
+
+## Modelagem Preditiva
+Para definir um ponto de partida foi utilizado `DummyClassifier` que da uma acurácia inicial de `0.73` a ser batido. Além dessa métrica também foi utilizada o ROC AUC para definir o melhor modelo.
+
+Foram utilizado três principais modelos como base:
+- `LogisticRegression`
+- `DecisionTreeClassifier`
+- `RandomForestClassifier` 
+
+Desses o único que teve um tuning de hiperparâmetros foi o `RandomForestClassifier` através do `GridSearchCV` para facilitar a escolha dos melhores parâmetros.
+
+Obtendo um AUC de `0.84` foi escolhido como modelo o `RandomForestClassifier`, a partir dele podemos olhar para os gráficos abaixo que nos mostram a importância de cada variável:
+
+![Feature Importance](imgs\feature_importance.png)
+
+## Conclusão
+
+Observamos então que as cobranças totais e os contratos mensais são os principais responsáveis por Churn do cliente na empresa, além dos clientes que possuem internet com fibra ótica, podendo estar ligado com a qualidade do produto. Também observamos que clientes que estão a um longo tempo dentro da empresa tem um impacto positivo, evitando o Churn.
+
