@@ -9,6 +9,8 @@ Desafio promovido pela Oracle Next Education junto da Alura.
 - Matplotlib
 - Seaborn
 - Scikit-learn
+- statsmodels
+- yellowbricks
 
 ## Objetivos
 Meu desafio aqui é é desenvolver modelos preditivos capazes de prever quais clientes têm maior chance de cancelar seus serviços devido a demanda da empresa de antecipar o problema de evasão.
